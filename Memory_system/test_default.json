@@ -1,0 +1,80 @@
+{
+    "The Starry Night": [
+        "Vincent Van Gogh",
+        "Oil",
+        "Dutch",
+        "Village",
+        "Nature"
+    ],
+    "The Siesta": [
+        "Vincent Van Gogh",
+        "Oil",
+        "Dutch",
+        "People",
+        "Day"
+    ],
+    "The Great Wave off Kanagawa": [
+        "Katsushika Hokusai",
+        "Woodblock print",
+        "Japanese",
+        "Sea",
+        "Day"
+    ],
+    "Fine Wind, Clear Morning": [
+        "Katsushika Hokusai",
+        "Woodblock print",
+        "Japanese",
+        "Mountain",
+        "Nature"
+    ],
+    "Vincent Van Gogh": [
+        "The Starry Night",
+        "The Siesta",
+        "Dutch"
+    ],
+    "Oil": [
+        "The Starry Night",
+        "The Siesta",
+        "Medium"
+    ],
+    "Dutch": [
+        "Vincent Van Gogh",
+        "The Starry Night",
+        "The Siesta"
+    ],
+    "Village": [
+        "The Starry Night"
+    ],
+    "Nature": [
+        "The Starry Night",
+        "Fine Wind, Clear Morning"
+    ],
+    "People": [
+        "The Siesta"
+    ],
+    "Day": [
+        "The Siesta",
+        "The Great Wave off Kanagawa"
+    ],
+    "Katsushika Hokusai": [
+        "The Great Wave off Kanagawa",
+        "Fine Wind, Clear Morning",
+        "Japanese"
+    ],
+    "Woodblock print": [
+        "Medium",
+        "The Great Wave off Kanagawa",
+        "Fine Wind, Clear Morning"
+    ],
+    "Japanese": [
+        "The Great Wave off Kanagawa",
+        "Fine Wind, Clear Morning",
+        "Katsushika Hokusai"
+    ],
+    "Sea": [
+        "The Great Wave off Kanagawa"
+    ],
+    "Mountain": [
+        "Fine Wind, Clear Morning"
+    ]
+}
