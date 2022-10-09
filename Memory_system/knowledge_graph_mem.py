@@ -26,10 +26,8 @@ class KnowledgeGraph:
             f = open('UserGraphs/' + target_user + '.json')
             graph = json.load(f)
             # For now I'll just assume the weights are stored in a csv, because that's easier, I guess
-            # TODO: Decide on a way of properly storing the vertex weights
             vert_weights = pd.read_csv('UserVertexWeights/' + target_user + '.csv')
         else:
-            # TODO Modify this json family to be the actual file, instead of the temp file I'm using
             f = open('test_default.json')
             graph = json.load(f)
             vertexes = graph.keys()
@@ -46,7 +44,6 @@ class KnowledgeGraph:
 
         # The way I'm keeping track of keys for now is just having a separate list that stores the name of all the
         #   paintings. That way it is easier to just find the relevant paintings, without having to search much
-        # TODO: Decide on a way of reading the paintings list from a text file. A split should be easy enough...
         paintings = open('paintings.txt', 'r')
         paintings_str = paintings.read()
         self.painting_list = paintings_str.split('\n')
@@ -58,26 +55,29 @@ class KnowledgeGraph:
         :returns
             Ordered list of strings, with the highest ranking vertexes
         """
-        temp = self.vert_weights[self.explored < 1].sort_values()[:number]
-        return temp.index
+        temp = self.vert_weights[self.explored < 1].sort_values(ascending=False)[:number]
+        result = temp.index.to_list()
+        return result
+
+    # TODO: Add method to only recommend topics, not paintings
 
     def modify_weight_of_vertex(self, vertex_to_modify: str, change_value: float) -> None:
         """Modifies the weight of one of the internal vertexes. It will add the change_value to the current value
         being stored, so it does not replace the current value completely.
 
         Additionally, if the vertex is directly linked to any painting, then the value of that painting is also
-        increased with the same value. This is done to make other methods easier to code
+        increased with the same value. This is done to make other methods easier to code. The idea is that you will
+        not talk directly about a painting, but you can get an idea of the weight of the painting based on the
+        neighboring values.
 
         :param vertex_to_modify: the vertex that will be modified
         :param change_value: How much to modify the current vertex by
 
         :return void"""
         self.vert_weights.loc[vertex_to_modify] += change_value
-        # It would make it easier to update the vertex weights of paintings directly here...
-        # yeah, that makes things easier
+
+        # TODO: Discuss whether this lazy approach actually makes sense, or if it's better to work around this
         neighbors = self.graph[vertex_to_modify]
-        # This is not the most efficient way, but screw it it works.
-        # I'm just looking for the neighbors that are paintings
         painting_neighbors = [x for x in neighbors if x in self.painting_list]
         for elem in painting_neighbors:
             self.vert_weights.loc[elem] += change_value
@@ -91,7 +91,24 @@ class KnowledgeGraph:
         :param count: Number of paintings to explore
         :return list containing the string names of the nth ranked paintings"""
 
-        result = self.vert_weights.isin(self.painting_list)[self.explored < 1].sort_values()[:count]
+        temp = self.vert_weights[self.vert_weights.index.isin(self.painting_list)]
+        # I was having issues removing the paintings based on painting list. This extra line is here to check that out
+        result = temp[self.explored < 1].sort_values(ascending=False)[:count]\
+
+        result = result.index.to_list()
+        return result
+
+    def find_n_highest_ranked_unexplored_topics(self, count: int = 3) -> list:
+        """Finds what are the topics with the highest rank. Ignores paintings, so this method is mainly
+        helpful for suggesting new conversational topics. The method also focuses only on those topics
+        that have not been explored yet, for the sake of returning only new topics
+
+        :param count: Number of topics to explore
+        :return list containing the string names of the nth ranked topics"""
+
+        temp = self.vert_weights[~self.vert_weights.index.isin(self.painting_list)]
+        result = temp[self.explored < 1].sort_values(ascending=False)[:count]
+        result = result.index.to_list()
         return result
 
     def mark_vertex_as_explored(self, vertex_name: str):
@@ -123,6 +140,10 @@ class KnowledgeGraph:
             if vertex_name not in self.graph[vert]:
                 self.graph[vert].append(vertex_name)
 
+        # The last thing is adding it to the explored series.
+        # For now, I'll work with the assumption that it is unexplored
+        self.explored[vertex_name] = 0
+
     def store_graph_and_weights(self, new_username: str = None, memory_reduction: float = 0.5):
         """Method to store the currently created knowledge graph, as well as the associated weights. Will store them
         in the existing folder. Stores the graph as a json file, and the weights as a text file.
@@ -153,5 +174,4 @@ class KnowledgeGraph:
 
 if __name__ == '__main__':
     # So, first I'll just run this...
-    test_graph = KnowledgeGraph()
-    test_graph_names = KnowledgeGraph('nick')
+    temp_graph = KnowledgeGraph()
