@@ -1,8 +1,9 @@
 package furhatos.app.caproject.flow.main
 
+import furhatos.app.caproject.flow.Parent
 import furhatos.flow.kotlin.*
 
-val Idle: State = state {
+val Idle: State = state(Parent) {
 
     init {
         when {
@@ -16,6 +17,7 @@ val Idle: State = state {
     }
 
     onEntry {
+        println("Entering idle")
         furhat.attendNobody()
     }
 
