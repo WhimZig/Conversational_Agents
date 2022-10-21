@@ -1,0 +1,4 @@
+nltk
+sklearn
+sentence_transformers
+keybert
