@@ -2,12 +2,10 @@ import numpy as np
 import pandas as pd
 import json
 from os.path import exists
+import rdflib
+from rdflib import URIRef
+from rdflib.namespace import RDF, RDFS, OWL, FOAF
 
-
-# TODO: Make sure I'm not missing any additional important details
-# Previous task is hazy AF. It means that I'm not missing important method calls
-
-# TODO: Bugtest the existing methods
 
 class KnowledgeGraph:
     def __init__(self, target_user: str = None):
