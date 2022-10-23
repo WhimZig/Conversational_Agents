@@ -1,0 +1,11 @@
+fastapi==0.85.1
+keybert==0.6.0
+nltk==3.7
+numpy==1.23.4
+opencv_python==4.6.0.66
+pandas==1.5.1
+ptgaze==0.2.8
+pydantic==1.10.2
+rdflib==6.2.0
+scikit_learn==1.1.2
+sentence_transformers==2.2.2
