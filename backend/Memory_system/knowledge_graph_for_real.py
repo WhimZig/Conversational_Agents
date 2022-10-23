@@ -245,6 +245,31 @@ class KnowledgeGraphArt:
 
         self.mark_vertex_as_explored(machine_name_painting)
 
+    def find_artist_medium_period_for_painting(self, machine_painting_name: URIRef) -> tuple:
+        """Get all the extra info for a painting, based on the machine name. Means we will look for the relevant
+        neighbors. This extra info is what was deemed important to speak about, because reasons"""
+
+        # First is finding the artist
+        artist = ''
+        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'createdBy'), None)):
+            artist = self.find_string_name_with_machine_name(o, False)
+
+        medium = ''
+        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'madeOf'), None)):
+            medium = self.find_string_name_with_machine_name(o, False)
+
+        period = ''
+        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'hasPeriod'), None)):
+            period = self.find_string_name_with_machine_name(o, False)
+
+        piece_name = self.find_string_name_with_machine_name(machine_painting_name, True)
+
+        artist = artist.replace('-', ' ').replace('_', ' ')
+        medium = medium.replace('-', ' ').replace('_', ' ')
+        period = period.replace('-', ' ').replace('_', ' ')
+
+        return piece_name, artist, medium, period
+
 
     def add_topic_to_graph(self, topic_to_add: str, cut_off: float = 1.):
         """To keep into account context, the system will have a method to read in a topic and save it withing the
