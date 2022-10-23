@@ -224,3 +224,30 @@ class KnowledgeGraphArt:
             result_list.append(s)
 
         return result_list
+
+    def add_topic_to_graph(self, topic_to_add: str, cut_off: float = 1.):
+        """To keep into account context, the system will have a method to read in a topic and save it withing the
+        existing graph. This method will also create a separate graph with the extra information.
+
+        Method assumes that internal values that have a score greater than or equal to the given cut_off value are
+        the nodes that should be connected, as the user found them to be interesting enough during the conversation.
+
+        THIS METHOD SHOULD NOT BE USED, AS UPDATING THE GRAPHS IS GOING TO BE RATHER ANNOYING
+
+        :param topic_to_add: New topic to include in the graph
+        :param cut_off: Cut off score, for determining that something is important enough. It has to be greater than
+        or equal to whatever the cut off value is"""
+
+        related_to_uri = URIRef(artgraph_prefix + 'relatedTo')
+
+        # For now, I will focus on getting the relevant cut off value
+        topics_to_store = self.vert_weights[self.vert_weights >= cut_off].index.to_list()
+
+        # I'd have to think of the proper RFL format, but this is consistent with the rest so it's good enough
+        topic_uri = URIRef(artgraph_prefix + topic_to_add)
+
+        for elem in topics_to_store:
+            self.g.add((topic_uri, related_to_uri, elem))
+            self.g.add((elem, related_to_uri, topic_uri))
+
+        self.g.serialize(destination='saved_graph.ttl')
