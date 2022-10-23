@@ -1,6 +1,7 @@
 import time
 from threading import Thread
 import cv2
+import sys
 
 #ptgaze part way more detailed and compliicated but probably worth it
 #https://pypi.org/project/ptgaze/
@@ -12,24 +13,32 @@ from ptgaze import gaze_estimator
 #is it working? yes, is it working well? ...no
 class GazeEvaluator():
     _FPS=3
-    _running=True
+    _running=False
     _loop=None
     _calibration=[]
     _calibrating=False
     _hor_Range=[-0.5,0.5]
     _ver_Range=[-0.6,0.0]
+    _attention=(0,0)
+
 
     text=""
     
     def __init__(self):
+        temp_args=sys.argv
+        sys.argv = sys.argv[:1]
+
         ag=pgm.parse_args()
-        ag.mode = 'eth-xgaze'
+        ag.mode='eth-xgaze'
         conf=pgm.load_mode_config(ag)
         pgu.expanduser_all(conf)
-        
+            
         self.reset()
         self.gz= gaze_estimator.GazeEstimator(conf)
         self.cam = cv2.VideoCapture(0)
+
+        sys.argv=temp_args
+
 
     def evaluate(self,img):
         faces=self.gz.detect_faces(img)
@@ -62,7 +71,6 @@ class GazeEvaluator():
 
     def stop(self):
         self._running=False
-        self._loop.join()
         self._loop=None
         
     def _looping(self):
@@ -82,4 +90,3 @@ if __name__=="__main__":
     res=eval.getAttention()
     print(res)
     eval.stop()
-
