@@ -3,8 +3,10 @@ package furhatos.app.caproject.flow.main
 object Recommender {
     fun processPurpose(text: String) {
         println("processing preferences!")
-        val purpose_list = khttp.post("http://localhost:8000/nlu/purpose", data = mapOf("text" to text))
-        //val purpose_list = khttp.post("http://localhost:8000/nlu/keyword", data = mapOf("text" to text)) can also use that
+        //val purpose_list = khttp.post("http://localhost:8000/nlu/purpose", data = mapOf("text" to text))
+
+        // Its a list of one element at this point, can adjust it for more
+        val purpose_list = khttp.post("http://localhost:8000/nlu/keyword", data = mapOf("text" to text)) 
 
         // now we somehow feed it to the rec sys
         println("processed purpose!")
