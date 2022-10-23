@@ -12,7 +12,7 @@ artgraph_res_prefix = 'https://www.gennarovessio.com/artgraph-resources#'
 
 
 class KnowledgeGraphArt:
-    def __init__(self, target_user: str = None):
+    def __init__(self, target_user: str = None, g: rdflib.Graph = None):
         """KnowledgeGraph class, meant to be used as the working memory for the conversational agent later in the
         project.
 
@@ -23,25 +23,31 @@ class KnowledgeGraphArt:
             is used at the start.
         """
         # First thing, if there's target user we use their information, if there is none, then we use the default graph
-        # TODO: Maybe just read the graph elsewhere, it takes a while to read per run. We shouldn't change the graph
-        #   too much either, so it might be better overall. That way each start up is done quickly, reading the graph
-        #   in takes way too long right now.
-        try:
-            # There's an error with the format of the original file. Doing a generic AF exception is the only fix I can
-            #   think of quickly. It's horrible, ugly and not good at all. But it works!
-            g = rdflib.Graph()
-            g.parse('artgraph-rdf/artgraph-facts.ttl')
-        except Exception:
-            print('Key error was reached')
+        if g is None:
+            try:
+                # There's an error with the format of the original file. Doing a generic AF exception is the only fix I
+                # can think of quickly. It's horrible, ugly and not good at all. But it works!
+                g = rdflib.Graph()
+                g.parse('artgraph-rdf/artgraph-facts.ttl')
+            except Exception:
+                print('Key error was reached')
 
-        objects = open('listing_of_elements/machine_names_objects.txt', 'r')
-        objects_str = objects.read()
-        self.objects_list = objects_str.split('\n')
+        d = {}
+        with open("listing_of_elements/machine_object_both.txt") as f:
+            for line in f:
+                (key, val) = line.split()
+                d[key] = val
+                d[val] = key
+
+        self.objects_list = d
 
         # TODO: Painting list might not be relevant. It might be worthwhile to remove this from memory, as it's not used
         paintings = open('listing_of_elements/paintings_in_graph.txt', 'r')
         paintings_str = paintings.read()
         self.painting_list = paintings_str.split('\n')
+
+        machine_name_list = open('listing_of_elements/machine_names_objects.txt', 'r')
+        machine_name_list = machine_name_list.read().split('\n')
 
         if target_user is not None and exists('UserVertexWeights/' + target_user + '.csv'):
             vert_weights = pd.read_csv('UserVertexWeights/' + target_user + '.csv')
@@ -50,7 +56,7 @@ class KnowledgeGraphArt:
             #   user
             # TODO: Add the weights, somehow
 
-            vert_weights = pd.Series(0.0, index=self.objects_list, dtype=float)
+            vert_weights = pd.Series(0.0, index=machine_name_list, dtype=float)
 
         # A way of storing the user info, in case it is ever used later on
         self.username = target_user
@@ -59,18 +65,27 @@ class KnowledgeGraphArt:
         self.vert_weights = vert_weights
 
         # I'll just do a count of explore for now, as that is easier to handle
-        self.explored = pd.Series(0, index=self.objects_list)
+        self.explored = pd.Series(0, index=machine_name_list)
 
-    def find_n_highest_ranked_unexplored_vertexes(self, number: int = 3) -> list:
-        """Method to find the n highest ranked unexplored vertexes. These can be art pieces, or they can be topics of discussion
+    def find_n_highest_ranked_unexplored_vertexes(self, number: int = 3, machine_name=True) -> list:
+        """Method to find the n highest ranked unexplored vertexes. These can be art pieces, or they can be topics of
+        discussion
 
+        :param machine_name: If True, returns the RLF machine name. Meaning with the weird naming scheme
         :param number: Number of highest ranked unexplroed vertices
         :returns
             Ordered list of strings, with the highest ranking vertexes
         """
         temp = self.vert_weights[self.explored < 1].sort_values(ascending=False)[:number]
         result = temp.index.to_list()
-        return result
+
+        if machine_name:
+            return result
+        else:
+            for i in range(len(result)):
+                result[i] = self.find_string_name_with_machine_name(result[i])
+
+            return result
 
     def modify_weight_of_vertex(self, vertex_to_modify: str, change_value: float) -> None:
         """Modifies the weight of one of the internal vertexes. It will add the change_value to the current value
@@ -151,7 +166,7 @@ class KnowledgeGraphArt:
         reduced_weights = self.vert_weights * memory_reduction
         reduced_weights.to_csv('UserVertexWeights/' + username + '.csv')
 
-    def find_string_name_with_machine_name(self, machine_name: URIRef) -> str:
+    def find_string_name_with_machine_name(self, machine_name: URIRef, through_graph: False) -> str:
         """Given the machine name in URIRef format of an object, find what the corresponding string name is. In case the
         piece is an art piece, then this method will return the title of the art piece
 
@@ -160,24 +175,37 @@ class KnowledgeGraphArt:
         In case there are multiple names for a given machine name, then this method returns the last name in the graph.
 
         :param machine_name: URIRef formatted name to search in the graph
+        :param through_graph: Searches for the string name through the graph if true. By default, it will use the
+            internal double dictionary.
         :returns string name of the relevant object"""
 
         # First, define if I'm searching for an artwork or just a name. This is because for artworks title makes more
         #   sense as the thing to parse. The objective is for the result to be as human readable as possible
-        art_type = URIRef('https://www.gennarovessio.com/artgraph-schema#Artwork')
+        if through_graph:
+            art_type = URIRef('https://www.gennarovessio.com/artgraph-schema#Artwork')
 
-        if (machine_name, RDF.type, art_type) in self.g:
-            target_uri = URIRef(artgraph_prefix + 'title')
+            if (machine_name, RDF.type, art_type) in self.g:
+                target_uri = URIRef(artgraph_prefix + 'title')
+            else:
+                target_uri = URIRef(artgraph_prefix + 'name')
+
+            # Just to deal with errors of it not existing in the graph
+            res = 'Not found'
+            for s, p, o in self.g.triples((machine_name, target_uri, None)):
+                # I'm going to assume that there is only one name. In
+                res = o
+
+            return str(res)
         else:
-            target_uri = URIRef(artgraph_prefix + 'name')
+            return self.objects_list[str(machine_name)]
 
-        # Just to deal with errors of it not existing in the graph
-        res = 'Not found'
-        for s, p, o in self.g.triples((machine_name, target_uri, None)):
-            # I'm going to assume that there is only one name. In
-            res = o
+    def machine_to_name_finder(self, to_find: str) -> str:
+        """Given either a machine name or a proper name, this method finds its opposite. Meaning, for a machine name
+        it finds the human name, and for a human name it finds the machine name.
 
-        return str(res)
+        :param to_find: The relevant string that will be searched
+        :returns The corresponding opposite of the given string"""
+        return self.objects_list[to_find]
 
     def find_neighboring_nodes(self, target_node: URIRef) -> list[URIRef]:
         """Method to return all the immediate neighbors of a given target node. Does not return the relationship, just
