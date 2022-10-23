@@ -2,22 +2,24 @@ package furhatos.app.caproject.flow.main
 
 object Recommender {
     fun processPurpose(text: String) {
-        println("processing preferences!")
+        println("processing purpose!")
         //val purpose_list = khttp.post("http://localhost:8000/nlu/purpose", data = mapOf("text" to text))
 
         // Its a list of one element at this point, can adjust it for more
-        val purpose_list = khttp.post("http://localhost:8000/nlu/keyword", data = mapOf("text" to text)) 
+        val purpose_list = khttp.post("http://localhost:8000/nlu/keyword", data = mapOf("text" to text)).purposes
 
-        // now we somehow feed it to the rec sys
+
         println("processed purpose!")
     }
     fun processPreferences(text: String) {
         println("processing preferences!")
-        // TODO: connect this to Python preference engine
 
-        val feature_list = khttp.post("http://localhost:8000/nlu/feature", data = mapOf("text" to text))
+        val feature_list = khttp.post("http://localhost:8000/nlu/feature", data = mapOf("text" to text)).features
 
-        // now we somehow feed it to the rec sys
+        for (feature in feature_list) {
+            khttp.post("http://localhost:8000/mem/topic", data = mapOf("text" to feature))
+        }
+
         println("processed preferences!")
        
     }
@@ -27,12 +29,12 @@ object Recommender {
 
         //Connection to gaze part / stopping gaze evaluation
         val r = khttp.get("http://localhost:8000/gaze/stop")
-        val attention = khttp.get("http://localhost:8000/gaze/getAttention")
-        val sentiment = khttp.post("http://localhost:8000/nlu/sentiment", data = mapOf("text" to response))
+        val attention = khttp.get("http://localhost:8000/gaze/getAttention").attention
+        val sentiment = khttp.post("http://localhost:8000/nlu/sentiment", data = mapOf("text" to response)).sentiment
 
-        // now we somehow combine the two and update the graph
+        val combined_score = 0.5 * sentiment + 0.5 * attention * sentiment
 
-        // TODO: connect this to Python preference engine
+        khttp.post("http://localhost:8000/mem/painting_score", data = mapOf("text" to artId, "sentiment" to combined_score))
         return Sentiment.POSITIVE
     }
 
@@ -41,6 +43,8 @@ object Recommender {
         // TODO: connect this to Python preference engine
         //Connection to gaze part / starting gaze evaluation
         val r = khttp.get("http://localhost:8000/gaze/start")
+
+        val art_name = khttp.get("http://localhost:8000/mem/painting_recommend").painting
 
         return Art("coolart1", "/cool/art/image.png")
     }
