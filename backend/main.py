@@ -26,31 +26,31 @@ GazeEval = Gaze.GazeEvaluator()
 
 
 @app.get("/gaze")
-async def root():
+async def gazeInfo():
     return {"currently_running": GazeEval._running, "FPS": GazeEval._FPS, "horizontal range": GazeEval._hor_Range, "vertical range": GazeEval._ver_Range}
 
 
 @app.get("/gaze/start")
-async def root():
+async def gazeStart():
     GazeEval.reset()
     GazeEval.run()
     return {"message": f"Gaze Evaluation started"}
 
 
 @app.get("/gaze/stop")
-async def root():
+async def gazeStop():
     GazeEval.stop()
     return {"message": "Finished correctly."}
 
 
 @app.get("/gaze/reset")
-async def root():
+async def gazeReset():
     GazeEval.reset()
     return {"message": f"Attention got reset successfully"}
 
 
 @app.get("/gaze/getAttention")
-async def root():
+async def gazeAttention():
     temp = GazeEval.getAttention()
     return {"message": f"Attention rating is {temp}", "attention": temp}
 

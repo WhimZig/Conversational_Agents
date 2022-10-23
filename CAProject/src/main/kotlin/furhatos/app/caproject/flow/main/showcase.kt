@@ -1,5 +1,6 @@
 package furhatos.app.caproject.flow.main
 
+import furhatos.app.caproject.events.SetPicSolo
 import furhatos.app.caproject.flow.Parent
 import furhatos.flow.kotlin.*
 import furhatos.nlu.common.No
@@ -47,12 +48,18 @@ val Showcase : State = state(Parent) {
     onEntry {
         furhat.say("Here is my recommendation for you")
         art = Recommender.getArt()
-        furhat.say(art.imagePath)
+
+
+        //Connection to GUI
+        send(SetPicSolo(art.imagePath))
+
         furhat.say("This is ${art.artist}'s  ${art.title} on ${art.medium} from ${art.timePeriod}")
         furhat.say("What are your thoughts on the art?")
     }
     onResponse {
         println(it.text)
+
+
         sentiment = Recommender.processUserResponse(art.id, it.text)
         goto(ShowcaseMore)
     }
