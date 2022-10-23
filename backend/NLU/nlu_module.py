@@ -10,6 +10,7 @@ from keybert import KeyBERT
 
 class NLU:
     def __init__(self):
+        print("starting up")
         # Sentiment analysis
         nltk.download('vader_lexicon')
         self.sid = SentimentIntensityAnalyzer()
@@ -25,21 +26,28 @@ class NLU:
 
         # Keyword / topic extraction using candidates
         # initialize to download the model
-        model = SentenceTransformer('distilbert-base-nli-mean-tokens')
+        self.model = SentenceTransformer('distilbert-base-nli-mean-tokens')
 
         # Yes / No question analysis
         # If we want more false positives than false negatives, remove 'done'
         self.yes_no_candidates = ['yes', 'no', 'done']
+        self.yes_no_candidate_embeddings = self.model.encode(
+            self.yes_no_candidates)
 
         # Purpose extraction
         #   no idea what purpose keywords would be good
         self.purpose_candidates = ['wallpaper',
                                    'picture', 'painting', 'bedroom']
+        self.purpose_candidate_embeddings = self.model.encode(
+            self.purpose_candidates)
 
         # Request feature extraction
         #   need to take those from the knowledge graph
         self.feature_candidates = ['picasso', 'positivism', 'cubism',
                                    'sunflowers', 'happy', 'sad', 'colorful', 'painting', 'oil']
+
+        self.feature_candidate_embeddings = self.model.encode(
+            self.feature_candidates)
 
         self.feature_mapping_dict = {}
 
@@ -52,6 +60,9 @@ class NLU:
                 (key, val) = line.split(',')
                 self.feature_mapping_dict[val] = key
                 self.feature_candidates.append(val)
+
+        self.feature_candidate_embeddings = self.model.encode(
+            self.feature_candidates)
 
     # A value from -1 to 1 where -1 is bad, 0 is neutral and 1 is good
     def analyze_sentiment(self, text: str) -> float:
@@ -86,10 +97,9 @@ class NLU:
         keywords_list = list(dict(keywords).keys())
         return keywords_list
 
-    def __extract_using_candidates__(self, text, candidates, top_n=1):
-        model = SentenceTransformer('distilbert-base-nli-mean-tokens')
-        doc_embedding = model.encode([text])
-        candidate_embeddings = model.encode(candidates)
+    def __extract_using_candidates__(self, text, candidates, candidate_embeddings, top_n=1):
+        # self.model = SentenceTransformer('distilbert-base-nli-mean-tokens')
+        doc_embedding = self.model.encode([text])
         distances = cosine_similarity(doc_embedding, candidate_embeddings)
         #answer = candidates[distances.argsort()[0][-1]]
         keywords = [candidates[index]
@@ -100,16 +110,16 @@ class NLU:
     # False for a negative answer, True for a positive
     def understand_yes_no(self, text: str) -> bool:
         return (self.__extract_using_candidates__(
-            text, self.yes_no_candidates)[-1] == 'yes')
+            text, self.yes_no_candidates, self.yes_no_candidate_embeddings)[-1] == 'yes')
 
     # The top 1 most likely purpose from among candidate purpose keywords
     def extract_purpose_using_candidates(self, text: str, top_n=1):
-        return self.__extract_using_candidates__(text, self.purpose_candidates, top_n)
+        return self.__extract_using_candidates__(text, self.purpose_candidates, self.purpose_candidate_embeddings, top_n)
 
     # The top 1 most likely purpose from among candidate detail keywords
     def extract_feature_using_candidates(self, text: str, top_n=3):
         features = self.__extract_using_candidates__(
-            text, self.feature_candidates, top_n)
+            text, self.feature_candidates, self.feature_candidate_embeddings, top_n)
 
         res = [self.feature_mapping_dict[key] for key in features]
         res.reverse()

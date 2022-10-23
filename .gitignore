@@ -1,6 +1,6 @@
 
 Memory_system/.idea/
-
+py-venv
 **/__pycache__/
 
 backend/Memory_system/artgraph-rdf/
