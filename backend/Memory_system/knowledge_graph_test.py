@@ -3,37 +3,47 @@
 import numpy as np
 import pandas as pd
 import json
+from rdflib import URIRef
+from rdflib.namespace import RDF, RDFS, OWL, FOAF
+import rdflib
 
-# First thing, this is just a way of creating a dummy json file for testing later on
-test_graph = {'The Starry Night': ['Vincent Van Gogh', 'Oil', 'Dutch', 'Village', 'Nature'],
-              'The Siesta': ['Vincent Van Gogh', 'Oil', 'Dutch', 'People', 'Day'],
-              'The Great Wave off Kanagawa': ['Katsushika Hokusai', 'Woodblock print', 'Japanese', 'Sea', 'Day'],
-              'Fine Wind, Clear Morning': ['Katsushika Hokusai', 'Woodblock print', 'Japanese', 'Mountain', 'Nature'],
-              # The things before are paintings, everything after are the topics. Separation done for ease
-              'Vincent Van Gogh': ['The Starry Night', 'The Siesta', 'Dutch'],
-              'Oil': ['The Starry Night', 'The Siesta', 'Medium'],
-              'Dutch': ['Vincent Van Gogh', 'The Starry Night', 'The Siesta'],
-              'Village': ['The Starry Night'],
-              'Nature': ['The Starry Night', 'Fine Wind, Clear Morning'],
-              'People': ['The Siesta'],
-              'Day': ['The Siesta', 'The Great Wave off Kanagawa'],
-              'Katsushika Hokusai': ['The Great Wave off Kanagawa', 'Fine Wind, Clear Morning', 'Japanese'],
-              'Woodblock print': ['Medium', 'The Great Wave off Kanagawa', 'Fine Wind, Clear Morning'],
-              'Japanese': ['The Great Wave off Kanagawa', 'Fine Wind, Clear Morning', 'Katsushika Hokusai'],
-              'Sea': ['The Great Wave off Kanagawa'],
-              'Mountain': ['Fine Wind, Clear Morning']}
+artgraph_prefix = 'https://www.gennarovessio.com/artgraph-schema#'
+artgraph_res_prefix = 'https://www.gennarovessio.com/artgraph-resources#'
 
-paintings = ['The Starry Night', 'The Siesta', 'The Great Wave off Kanagawa', 'Fine Wind, Clear Morning']
+g = rdflib.Graph()
+g.parse('artgraph-rdf/artgraph-facts.ttl')
 
-# For now, I'll just store these two files, one as a json, and the other as a text file for reading.
-with open("paintings.txt", 'w') as f:
-    f.write("\n".join(map(str, paintings)))
+paintings = open('listing_of_elements/paintings_in_graph.txt', 'r')
+paintings_str = paintings.read()
+painting_list = paintings_str.split('\n')
 
-with open('test_default.json', 'w', encoding='utf-8') as f:
-    json.dump(test_graph, f, ensure_ascii=False, indent=4)
+artwork_uri = URIRef('https://www.gennarovessio.com/artgraph-schema#Artwork')
+name_uri = URIRef(artgraph_prefix + 'name')
+
+# THE FOLLOWING IS CODE TO CREATE A LINK BETWEEN TOPICS AND MACHINE NAMES!!!!
+result_list = set()
+for s, p, o in g:
+    if p == name_uri:
+        # So, now I do an extra check to remove the paintings by checking if s is in painting list
+        if not (str(s) in painting_list):
+            temp = str(o).replace('-', ' ')
+            temp = temp.replace('_', ' ')
+            temp = temp.replace(',', ' ')
+            result_list.add((str(s), temp))
+
+result_list = list(result_list)
+
+with open('listing_of_elements/human_to_machine.txt', 'w', encoding='utf-8') as f:
+    for line in result_list:
+        key, value = line[0], line[1]
+        #print(key + ',' + value)
+        temp = key + ',' + value
+        f.write(f"{temp}\n")
 
 
-# This is a test node weights, done because I will probably use this later on!
-vert_weights = pd.Series(0, index=test_graph.keys())
-
-vert_weights.to_csv('UserVertexWeights/test_user.csv')
+d = {}
+with open("listing_of_elements/human_to_machine.txt") as f:
+    for line in f:
+        (key, val) = line.split(',')
+        d[key] = val
+        d[val] = key

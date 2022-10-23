@@ -35,7 +35,7 @@ class KnowledgeGraphArt:
         d = {}
         with open("listing_of_elements/machine_object_both.txt") as f:
             for line in f:
-                (key, val) = line.split()
+                (key, val) = line.split(',')
                 d[key] = val
                 d[val] = key
 
