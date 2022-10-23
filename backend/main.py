@@ -143,8 +143,14 @@ async def givePaintingScore(response: KnowledgeGraphResponse):
 
 @app.get("/mem/painting_recommend")
 async def recommendPainting():
-    machine_painting_name = graph_art.find_n_highest_ranked_unexplored_paintings()[
-        0]
-    name_painting = graph_art.find_string_name_with_machine_name(
-        machine_painting_name, False)
-    return {"painting": name_painting}
+    machine_painting_name = graph_art.find_n_highest_ranked_unexplored_paintings()[0]
+    filename_painting = graph_art.find_string_name_with_machine_name(machine_painting_name, False)
+    piece_name, artist, medium, period = graph_art.find_artist_medium_period_for_painting(machine_painting_name)
+    return {"filename": filename_painting, 'piece_name': piece_name, 'artist': artist,
+            'medium': medium, 'period': period}
+
+
+@app.post("/mem/update_purpose")
+async def addTopicToGraph(response: KnowledgeGraphResponse):
+    graph_art.add_topic_to_graph(response.text)
+    return {"message": 'Topic was added'}

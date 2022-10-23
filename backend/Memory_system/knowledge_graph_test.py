@@ -21,7 +21,7 @@ artgraph_prefix = 'https://www.gennarovessio.com/artgraph-schema#'
 artgraph_res_prefix = 'https://www.gennarovessio.com/artgraph-resources#'
 
 g = rdflib.Graph()
-g.parse('artgraph-rdf/artgraph-facts.ttl')
+g.parse('backend/Memory_system/artgraph-rdf/artgraph-facts.ttl')
 
 paintings = open('listing_of_elements/paintings_in_graph.txt', 'r')
 paintings_str = paintings.read()
