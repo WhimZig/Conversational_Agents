@@ -29,24 +29,29 @@ class NLU:
 
         # Yes / No question analysis
         # If we want more false positives than false negatives, remove 'done'
-        yes_no_keywords = "yes no done"
-        count_yes_no = CountVectorizer(
-            ngram_range=(1, 1)).fit([yes_no_keywords])
-        self.yes_no_candidates = count_yes_no.get_feature_names_out()
+        self.yes_no_candidates = ['yes', 'no', 'done']
 
         # Purpose extraction
         #   no idea what purpose keywords would be good
-        purpose_keywords = "wallpaper picture painting bedroom"
-        count_purpose = CountVectorizer(
-            ngram_range=(1, 1)).fit([purpose_keywords])
-        self.purpose_candidates = count_purpose.get_feature_names_out()
+        self.purpose_candidates = ['wallpaper',
+                                   'picture', 'painting', 'bedroom']
 
-        # Request details extraction
+        # Request feature extraction
         #   need to take those from the knowledge graph
-        details_keywords = "Picasso positivism cubism Sunflowers happy sad colorful painting oil"
-        count_details = CountVectorizer(
-            ngram_range=(1, 1)).fit([details_keywords])
-        self.details_candidates = count_details.get_feature_names_out()
+        self.feature_candidates = ['picasso', 'positivism', 'cubism',
+                                   'sunflowers', 'happy', 'sad', 'colorful', 'painting', 'oil']
+
+        self.feature_mapping_dict = {}
+
+    def load_painting_features_from_file(self, filename):
+        self.feature_mapping_dict = {}
+        self.feature_candidates = []
+
+        with open(filename) as f:
+            for line in f:
+                (key, val) = line.split(',')
+                self.feature_mapping_dict[val] = key
+                self.feature_candidates.append(val)
 
     # A value from -1 to 1 where -1 is bad, 0 is neutral and 1 is good
     def analyze_sentiment(self, text: str) -> float:
@@ -81,23 +86,32 @@ class NLU:
         keywords_list = list(dict(keywords).keys())
         return keywords_list
 
-    def __extract_using_candidates__(self, text, candidates):
+    def __extract_using_candidates__(self, text, candidates, top_n=1):
         model = SentenceTransformer('distilbert-base-nli-mean-tokens')
         doc_embedding = model.encode([text])
         candidate_embeddings = model.encode(candidates)
         distances = cosine_similarity(doc_embedding, candidate_embeddings)
-        answer = candidates[distances.argsort()[0][-1]]
-        return answer
+        #answer = candidates[distances.argsort()[0][-1]]
+        keywords = [candidates[index]
+                    for index in distances.argsort()[0][-top_n:]]
+
+        return keywords
 
     # False for a negative answer, True for a positive
     def understand_yes_no(self, text: str) -> bool:
         return (self.__extract_using_candidates__(
-            text, self.yes_no_candidates) == 'yes')
+            text, self.yes_no_candidates)[-1] == 'yes')
 
     # The top 1 most likely purpose from among candidate purpose keywords
-    def extract_purpose_using_candidates(self, text: str):
-        return self.__extract_using_candidates__(text, self.purpose_candidates)
+    def extract_purpose_using_candidates(self, text: str, top_n=1):
+        return self.__extract_using_candidates__(text, self.purpose_candidates, top_n)
 
     # The top 1 most likely purpose from among candidate detail keywords
-    def extract_details_using_candidates(self, text: str):
-        return self.__extract_using_candidates__(text, self.details_candidates)
+    def extract_feature_using_candidates(self, text: str, top_n=3):
+        features = self.__extract_using_candidates__(
+            text, self.feature_candidates, top_n)
+
+        res = [self.feature_mapping_dict[key] for key in features]
+        res.reverse()
+
+        return res
