@@ -10,3 +10,4 @@ save_flow.xml
 *.jpg
 *.jpeg
 *.png
+/bin/main
