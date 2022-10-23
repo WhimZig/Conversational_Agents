@@ -1,11 +1,16 @@
+import rdflib
+
 from NLU.nlu_module import NLU
 import Gaze.Gaze as Gaze
 from typing import Union
+from Memory_system.knowledge_graph_for_real import KnowledgeGraphArt
 
 from fastapi import FastAPI
 from pydantic import BaseModel
 
 app = FastAPI()
+
+PURPOSE = "phone wallpaper"
 
 
 @app.get("/")
@@ -17,9 +22,9 @@ class UserResponse(BaseModel):
     text: str
 
 
-@app.post("/purpose/")
-async def create_item(user_response: UserResponse):
-    return {"message": "Purpose Processed"}
+# @app.post("/purpose/")
+# async def create_item(user_response: UserResponse):
+#     return {"message": "Purpose Processed"}
 
 # Gaze Evaluation
 GazeEval = Gaze.GazeEvaluator()
@@ -73,6 +78,7 @@ async def extractName(user_response: UserResponse):
 @app.post("/nlu/purpose")
 async def extractName(user_response: UserResponse):
     purposes = nlu.extract_purpose_using_candidates(user_response.text)
+    PURPOSE = purposes[0]
     return {"purpose_list": purposes}
 
 
@@ -104,3 +110,41 @@ async def extractName(user_response: UserResponse):
 async def extractName(user_response: UserResponse):
     keywords = nlu.extract_keywords(user_response.text)
     return {"keywords": keywords}
+
+g = None
+try:
+    # There's an error with the format of the original file. Doing a generic AF exception is the only fix I
+    # can think of quickly. It's horrible, ugly and not good at all. But it works!
+    g = rdflib.Graph()
+    g.parse('Memory_system/artgraph-rdf/artgraph-facts.ttl')
+except Exception:
+    print('Key error was reached')
+
+graph_art = KnowledgeGraphArt(g=g)
+
+
+class KnowledgeGraphResponse(BaseModel):
+    text: str
+    sentiment: float
+
+
+@app.post("/mem/topic")
+async def giveWeightToTopic(response: KnowledgeGraphResponse):
+    """Method assumes that the given text is the string version of the URI Machine name"""
+    graph_art.modify_weight_of_vertex(response.text)
+    return {"message": "Topic weights modified"}
+
+
+@app.post("/mem/painting_score")
+async def givePaintingScore(response: KnowledgeGraphResponse):
+    graph_art.update_neighboring_to_painting(response.text, response.sentiment)
+    return {"message": 'Painting scores modified'}
+
+
+@app.get("/mem/painting_recommend")
+async def recommendPainting():
+    machine_painting_name = graph_art.find_n_highest_ranked_unexplored_paintings()[
+        0]
+    name_painting = graph_art.find_string_name_with_machine_name(
+        machine_painting_name, False)
+    return {"painting": name_painting}

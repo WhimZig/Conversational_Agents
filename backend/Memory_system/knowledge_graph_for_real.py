@@ -33,9 +33,10 @@ class KnowledgeGraphArt:
                 print('Key error was reached')
 
         d = {}
-        with open("listing_of_elements/machine_object_both.txt") as f:
+        with open("listing_of_elements/machine_object_both.txt", encoding='utf8') as f:
             for line in f:
-                (key, val) = line.split(',')
+                (key, val) = line.split(',', 1)
+                val = val[:-1]
                 d[key] = val
                 d[val] = key
 
@@ -87,7 +88,7 @@ class KnowledgeGraphArt:
 
             return result
 
-    def modify_weight_of_vertex(self, vertex_to_modify: str, change_value: float) -> None:
+    def modify_weight_of_vertex(self, vertex_to_modify: str, change_value: float = 0.2) -> None:
         """Modifies the weight of one of the internal vertexes. It will add the change_value to the current value
         being stored, so it does not replace the current value completely.
 
@@ -108,7 +109,7 @@ class KnowledgeGraphArt:
         for elem in painting_neighbors:
             self.vert_weights.loc[elem] += change_value
 
-    def find_n_highest_ranked_unexplored_paintings(self, count: int = 3) -> list:
+    def find_n_highest_ranked_unexplored_paintings(self, count: int = 1) -> list:
         """Finds what are the paintings with the highest rank. Because paintings are rarely going to be directly
         scored, this method relies on finding the neighbors of each painting and using their scores to estimate the
         score of the painting. The method also focuses only on those paintings that have not been explored yet,
@@ -199,6 +200,7 @@ class KnowledgeGraphArt:
         else:
             return self.objects_list[str(machine_name)]
 
+
     def machine_to_name_finder(self, to_find: str) -> str:
         """Given either a machine name or a proper name, this method finds its opposite. Meaning, for a machine name
         it finds the human name, and for a human name it finds the machine name.
@@ -225,6 +227,25 @@ class KnowledgeGraphArt:
 
         return result_list
 
+    def update_neighboring_to_painting(self, machine_name_painting: str, sentiment: float) -> None:
+        """Given a painting and some sentiment about the painting, the recommender system will update the values of
+        all of the neighboring terms. This will additionally mark the given painting as being visited already
+
+        :param machine_name_painting: Machine name of the painting that was visited. It is a string to make it easier
+        to merge with other components, it will be turned into a URIRef value immediately
+        :param sentiment: Score given to the painting. Obtained through a magical multimodal method"""
+        painting_URI = URIRef(machine_name_painting)
+
+        neighbors = self.find_neighboring_nodes(painting_URI)
+
+        for elem in neighbors:
+            # TODO: Bug test the element I'm receiving and that I'm giving is consistent
+            #   AKA, both are URI or both are string
+            self.modify_weight_of_vertex(elem, sentiment)
+
+        self.mark_vertex_as_explored(machine_name_painting)
+
+
     def add_topic_to_graph(self, topic_to_add: str, cut_off: float = 1.):
         """To keep into account context, the system will have a method to read in a topic and save it withing the
         existing graph. This method will also create a separate graph with the extra information.
@@ -232,9 +253,12 @@ class KnowledgeGraphArt:
         Method assumes that internal values that have a score greater than or equal to the given cut_off value are
         the nodes that should be connected, as the user found them to be interesting enough during the conversation.
 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         THIS METHOD SHOULD NOT BE USED, AS UPDATING THE GRAPHS IS GOING TO BE RATHER ANNOYING
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        :param topic_to_add: New topic to include in the graph
+        :param topic_to_add: New topic to include in the graph. Could just be the purpose, or the username of the person
+        using the program. It's just a noun as an identifier
         :param cut_off: Cut off score, for determining that something is important enough. It has to be greater than
         or equal to whatever the cut off value is"""
 
