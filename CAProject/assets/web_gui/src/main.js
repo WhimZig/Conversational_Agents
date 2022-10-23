@@ -66,7 +66,7 @@ function setPicSelection(input){
   let pic_names=input.split(',')
   let newHtml=""
   for(let i=0;i<pic_names.length;i++){
-    newHtml+='<img class="art" id="pic-'+i+'" src="pics/'+pic_names[i]+'"/>'
+    newHtml+='<img class="art" id="pic-'+i+'" src="pics/imagesf2/'+pic_names[i]+'"/>'
   }
   folder.innerHTML = newHtml
   for(let i=0;i<pic_names.length;i++){
@@ -83,5 +83,5 @@ function setPicSelection(input){
 function setSoloPic(input){
   console.log('setting solo pic')
   let folder= document.getElementById("folder")
-  folder.innerHTML ='<img class="art solo" src="pics/'+input+'"/>'
+  folder.innerHTML ='<img class="art solo" src="pics/imagesf2/'+input+'"/>'
 }
