@@ -53,7 +53,17 @@ val Showcase : State = state(Parent) {
         //Connection to GUI
         send(SetPicSolo(art.imagePath))
 
-        furhat.say("This is ${art.artist}'s  ${art.title} on ${art.medium} from ${art.timePeriod}")
+        var artist=""
+        var medium=""
+        var timePeriod=""
+
+        if (!art.artist.equals("")){ artist=" ${art.artist}'s" }
+        if (!art.medium.equals("")){ medium=" on ${art.medium}" }
+        if (!art.timePeriod.equals("")){ timePeriod=" from ${art.timePeriod}" }
+
+
+        furhat.say("This is${artist} ${art.title}${medium}${timePeriod}")
+
         furhat.say("What are your thoughts on the art?")
     }
     onResponse {

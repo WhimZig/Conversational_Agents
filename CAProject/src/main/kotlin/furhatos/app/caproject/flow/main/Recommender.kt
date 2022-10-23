@@ -31,7 +31,7 @@ object Recommender {
         val r = khttp.get("http://localhost:8000/gaze/stop")
         val attention = khttp.get("http://localhost:8000/gaze/getAttention").attention
         val sentiment = khttp.post("http://localhost:8000/nlu/sentiment", data = mapOf("text" to response)).sentiment
-
+        // if there is a problem here put the attribute calling somewhere after the function
         val combined_score = 0.5 * sentiment + 0.5 * attention * sentiment
 
         khttp.post("http://localhost:8000/mem/painting_score", data = mapOf("text" to artId, "sentiment" to combined_score))
