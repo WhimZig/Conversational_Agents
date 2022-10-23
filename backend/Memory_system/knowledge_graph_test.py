@@ -7,6 +7,16 @@ from rdflib import URIRef
 from rdflib.namespace import RDF, RDFS, OWL, FOAF
 import rdflib
 
+if __name__ == '__main__':
+    d = {}
+    with open("listing_of_elements/machine_object_both.txt", encoding='utf8') as f:
+        for line in f:
+            (key, val) = line.split(',', 1)
+            val = val[:-1]
+            d[key] = val
+            d[val] = key
+    print(d)
+
 artgraph_prefix = 'https://www.gennarovessio.com/artgraph-schema#'
 artgraph_res_prefix = 'https://www.gennarovessio.com/artgraph-resources#'
 
