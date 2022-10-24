@@ -1,5 +1,6 @@
 package furhatos.app.caproject.flow.main
 
+import org.json.JSONObject
 import java.util.Arrays
 
 object Recommender {
@@ -8,20 +9,20 @@ object Recommender {
         //val purpose_list = khttp.post("http://localhost:8000/nlu/purpose", data = mapOf("text" to text))
 
         // It's a list of one element at this point, can adjust it for more
-        val purpose_list = khttp.post("http://localhost:8000/nlu/keyword", data = mapOf("text" to text))
+        val purpose_list = khttp.post("http://localhost:8000/nlu/keywords", data = mapOf("text" to text))
 
         println("processed purpose!")
     }
 
     fun processPreferences(text: String) {
         println("processing preferences!")
-
-        val feature_list = khttp.post("http://localhost:8000/nlu/feature", data = mapOf("text" to text)).jsonObject
-
+        println(mapOf("text" to text))
+        val feature_list = khttp.post("http://localhost:8000/nlu/feature", data = JSONObject( mapOf("text" to text)) ).jsonObject
+        println(feature_list)
         
-        khttp.post("http://localhost:8000/mem/topic", data = mapOf("text" to (feature.get("feature1") as String)))
-        khttp.post("http://localhost:8000/mem/topic", data = mapOf("text" to (feature.get("feature2") as String)))
-        khttp.post("http://localhost:8000/mem/topic", data = mapOf("text" to (feature.get("feature3") as String)))
+        khttp.post("http://localhost:8000/mem/topic", data = mapOf("text" to (feature_list.get("feature1") as String)))
+        khttp.post("http://localhost:8000/mem/topic", data = mapOf("text" to (feature_list.get("feature2") as String)))
+        khttp.post("http://localhost:8000/mem/topic", data = mapOf("text" to (feature_list.get("feature3") as String)))
 
         println("processed preferences!")
 
