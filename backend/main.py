@@ -111,7 +111,7 @@ try:
     g = rdflib.Graph()
     g.parse('Memory_system/artgraph-rdf/artgraph-facts.ttl')
 except Exception:
-    print('Key error was reached')
+    print('This is an expected print, which is ugly but woo')
 
 graph_art = KnowledgeGraphArt(g=g)
 
@@ -131,7 +131,7 @@ async def giveWeightToTopic(response: UserResponse):
 @app.post("/mem/painting_score")
 async def givePaintingScore(response: KnowledgeGraphResponse):
     graph_art.update_neighboring_to_painting(response.text, response.sentiment)
-    return {"message": 'Painting scores modified'}
+    return {"message": 'Painting scores modified', 'text received': response.text}
 
 
 @app.get("/mem/painting_recommend")
