@@ -12,7 +12,7 @@ artgraph_prefix = 'https://www.gennarovessio.com/artgraph-schema#'
 artgraph_res_prefix = 'https://www.gennarovessio.com/artgraph-resources#'
 
 
-class KnowledgeGraphArt:
+class KnowledgeGraphDumb:
     def __init__(self, target_user: str = None, g: rdflib.Graph = None):
         """KnowledgeGraph class, meant to be used as the working memory for the conversational agent later in the
         project.
