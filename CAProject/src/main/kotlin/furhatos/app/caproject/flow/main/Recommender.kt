@@ -83,7 +83,7 @@ object Recommender {
 
         val art = khttp.get("http://localhost:8000/mem/painting_recommend").jsonObject
         println(art)
-        var art1 = Art(art.get("filename") as String, art.get("filename") as String)
+        var art1 = Art(art.get("machine_name") as String, art.get("filename") as String)
         art1.artist = art.get("artist") as String
         art1.title = art.get("piece_name") as String
         art1.medium = art.get("medium") as String
