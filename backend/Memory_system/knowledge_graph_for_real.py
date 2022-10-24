@@ -55,7 +55,6 @@ class KnowledgeGraphArt:
         else:
             # I'll store a separate file with all unique objects. I'll just read it in, in case the user is a new
             #   user
-            # TODO: Add the weights, somehow
 
             vert_weights = pd.Series(0.0, index=machine_name_list, dtype=float)
 
@@ -300,3 +299,8 @@ class KnowledgeGraphArt:
             self.g.add((elem, related_to_uri, topic_uri))
 
         self.g.serialize(destination='saved_graph.ttl')
+
+    def reset_memory(self):
+        """Method to reset the internal memory. Done so that future runnings of the app can manage"""
+        self.explored = pd.Series(0., index=self.explored.index)
+        self.vert_weights = pd.Series(0., index=self.vert_weights.index)
