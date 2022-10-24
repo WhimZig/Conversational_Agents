@@ -83,7 +83,7 @@ class KnowledgeGraphArt:
             return result
         else:
             for i in range(len(result)):
-                result[i] = self.find_string_name_with_machine_name(result[i])
+                result[i] = self.find_string_name_with_machine_name(result[i], False)
 
             return result
 
@@ -104,9 +104,9 @@ class KnowledgeGraphArt:
 
         neighbors = self.find_neighboring_nodes(URIRef(vertex_to_modify))
 
-        painting_neighbors = [x for x in neighbors if x in self.painting_list]
-        for elem in painting_neighbors:
-            self.vert_weights.loc[elem] += change_value
+        painting_neighbors = list(set(neighbors) & set(self.painting_list))
+
+        self.vert_weights[self.vert_weights.index.isin(painting_neighbors)] += change_value
 
     def find_n_highest_ranked_unexplored_paintings(self, count: int = 1) -> list:
         """Finds what are the paintings with the highest rank. Because paintings are rarely going to be directly
@@ -166,7 +166,7 @@ class KnowledgeGraphArt:
         reduced_weights = self.vert_weights * memory_reduction
         reduced_weights.to_csv('UserVertexWeights/' + username + '.csv')
 
-    def find_string_name_with_machine_name(self, machine_name: URIRef, through_graph: False) -> str:
+    def find_string_name_with_machine_name(self, machine_name: URIRef, through_graph = False) -> str:
         """Given the machine name in URIRef format of an object, find what the corresponding string name is. In case the
         piece is an art piece, then this method will return the title of the art piece
 
@@ -184,14 +184,15 @@ class KnowledgeGraphArt:
         if through_graph:
             art_type = URIRef('https://www.gennarovessio.com/artgraph-schema#Artwork')
 
-            if (machine_name, RDF.type, art_type) in self.g:
+            if (URIRef(machine_name), RDF.type, art_type) in self.g:
                 target_uri = URIRef(artgraph_prefix + 'title')
             else:
                 target_uri = URIRef(artgraph_prefix + 'name')
 
             # Just to deal with errors of it not existing in the graph
-            res = 'Not found'
-            for s, p, o in self.g.triples((machine_name, target_uri, None)):
+            # A blank name is better, because yes
+            res = ''
+            for s, p, o in self.g.triples((URIRef(machine_name), target_uri, None)):
                 # I'm going to assume that there is only one name. In
                 res = o
 
@@ -219,10 +220,10 @@ class KnowledgeGraphArt:
         :returns A list with all the URIRef that neighbor the given target node"""
         result_list = []
         for s, p, o in self.g.triples((target_node, None, None)):
-            result_list.append(o)
+            result_list.append(str(o))
 
         for s, p, o in self.g.triples((None, None, target_node)):
-            result_list.append(s)
+            result_list.append(str(s))
 
         return result_list
 
@@ -250,15 +251,15 @@ class KnowledgeGraphArt:
 
         # First is finding the artist
         artist = ''
-        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'createdBy'), None)):
+        for s, p, o in self.g.triples((URIRef(machine_painting_name), URIRef(artgraph_prefix + 'createdBy'), None)):
             artist = self.find_string_name_with_machine_name(o, False)
 
         medium = ''
-        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'madeOf'), None)):
+        for s, p, o in self.g.triples((URIRef(machine_painting_name), URIRef(artgraph_prefix + 'madeOf'), None)):
             medium = self.find_string_name_with_machine_name(o, False)
 
         period = ''
-        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'hasPeriod'), None)):
+        for s, p, o in self.g.triples((URIRef(machine_painting_name), URIRef(artgraph_prefix + 'hasPeriod'), None)):
             period = self.find_string_name_with_machine_name(o, False)
 
         piece_name = self.find_string_name_with_machine_name(machine_painting_name, True)
