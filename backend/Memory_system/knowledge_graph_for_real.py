@@ -250,15 +250,15 @@ class KnowledgeGraphArt:
 
         # First is finding the artist
         artist = ''
-        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'createdBy'), None)):
+        for s, p, o in self.g.triples((URIRef(machine_painting_name), URIRef(artgraph_prefix + 'createdBy'), None)):
             artist = self.find_string_name_with_machine_name(o, False)
 
         medium = ''
-        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'madeOf'), None)):
+        for s, p, o in self.g.triples((URIRef(machine_painting_name), URIRef(artgraph_prefix + 'madeOf'), None)):
             medium = self.find_string_name_with_machine_name(o, False)
 
         period = ''
-        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'hasPeriod'), None)):
+        for s, p, o in self.g.triples((URIRef(machine_painting_name), URIRef(artgraph_prefix + 'hasPeriod'), None)):
             period = self.find_string_name_with_machine_name(o, False)
 
         piece_name = self.find_string_name_with_machine_name(machine_painting_name, True)
