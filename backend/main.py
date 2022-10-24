@@ -88,12 +88,6 @@ async def extractName(user_response: UserResponse):
     return {"feature_list": features}
 
 
-@app.post("/nlu/feature")
-async def extractName(user_response: UserResponse):
-    features = nlu.extract_feature_using_candidates(user_response.text)
-    return {"feature_list": features}
-
-
 @app.post("/nlu/sentiment")
 async def extractName(user_response: UserResponse):
     sentiment = nlu.analyze_sentiment(user_response.text)

@@ -1,6 +1,12 @@
 # Conversational_Agents
 
-To run the python server, run
+Installation
+
+```
+pip install "fastapi[all]"
+```
+
+To run the python server
 ```
 uvicorn main:app --reload
 ```

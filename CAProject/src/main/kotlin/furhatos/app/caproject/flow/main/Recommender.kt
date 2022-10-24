@@ -16,7 +16,7 @@ object Recommender {
     fun processPreferences(text: String) {
         println("processing preferences!")
 
-        val feature_list = khttp.post("http://localhost:8000/nlu/feature", data = mapOf("text" to text)).jsonObject.get("features") as List<*>
+        val feature_list = khttp.post("http://localhost:8000/nlu/feature", data = mapOf("text" to text)).jsonObject.get("feature_list") as List<*>
 
         for (feature in feature_list) {
             khttp.post("http://localhost:8000/mem/topic", data = mapOf("text" to feature))
