@@ -16,12 +16,22 @@ object Recommender {
 
     fun processPreferences(text: String) {
         println("processing preferences!")
-        val feature_list = khttp.post("http://localhost:8000/nlu/feature", json = JSONObject( mapOf("text" to text)) ).jsonObject
+        val feature_list =
+            khttp.post("http://localhost:8000/nlu/feature", json = JSONObject(mapOf("text" to text))).jsonObject
         println(feature_list)
-        
-        khttp.post("http://localhost:8000/mem/topic", json = mapOf("text" to (feature_list.get("feature1") as String)))
-        khttp.post("http://localhost:8000/mem/topic", json = mapOf("text" to (feature_list.get("feature2") as String)))
-        khttp.post("http://localhost:8000/mem/topic", json = mapOf("text" to (feature_list.get("feature3") as String)))
+
+        khttp.post(
+            "http://localhost:8000/mem/topic",
+            json = JSONObject(mapOf("text" to (feature_list.get("feature1") as String)))
+        )
+        khttp.post(
+            "http://localhost:8000/mem/topic",
+            json = JSONObject(mapOf("text" to (feature_list.get("feature2") as String)))
+        )
+        khttp.post(
+            "http://localhost:8000/mem/topic",
+            json = JSONObject(mapOf("text" to (feature_list.get("feature3") as String)))
+        )
 
         println("processed preferences!")
 
@@ -33,7 +43,10 @@ object Recommender {
         //Connection to gaze part / stopping gaze evaluation
         val r = khttp.get("http://localhost:8000/gaze/stop")
         val attention = khttp.get("http://localhost:8000/gaze/getAttention").jsonObject.get("attention") as Float
-        val sentiment = khttp.post("http://localhost:8000/nlu/sentiment", json = mapOf("text" to response)).jsonObject.get("sentiment") as Float
+        val sentiment = khttp.post(
+            "http://localhost:8000/nlu/sentiment",
+            json = mapOf("text" to response)
+        ).jsonObject.get("sentiment") as Float
         // if there is a problem here put the attribute calling somewhere after the function
         val combined_score = 0.5 * sentiment + 0.5 * attention * sentiment
 
@@ -55,11 +68,12 @@ object Recommender {
         val r = khttp.get("http://localhost:8000/gaze/start")
 
         val art = khttp.get("http://localhost:8000/mem/painting_recommend").jsonObject
-        var art1 = Art(art.get("filename") as String,art.get("filename") as String)
-        art1.artist=art.get("artist") as String
-        art1.title=art.get("piece_name") as String
-        art1.medium=art.get("medium") as String
-        art1.timePeriod=art.get("period") as String
+        println(art)
+        var art1 = Art(art.get("filename") as String, art.get("filename") as String)
+        art1.artist = art.get("artist") as String
+        art1.title = art.get("piece_name") as String
+        art1.medium = art.get("medium") as String
+        art1.timePeriod = art.get("period") as String
         return art1
     }
 }   

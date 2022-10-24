@@ -123,7 +123,7 @@ class KnowledgeGraphResponse(BaseModel):
 
 
 @app.post("/mem/topic")
-async def giveWeightToTopic(response: KnowledgeGraphResponse):
+async def giveWeightToTopic(response: UserResponse):
     """Method assumes that the given text is the string version of the URI Machine name"""
     graph_art.modify_weight_of_vertex(response.text)
     return {"message": "Topic weights modified"}
@@ -145,6 +145,6 @@ async def recommendPainting():
 
 
 @app.post("/mem/update_purpose")
-async def addTopicToGraph(response: KnowledgeGraphResponse):
+async def addTopicToGraph(response: UserResponse):
     graph_art.add_topic_to_graph(response.text)
     return {"message": 'Topic was added'}
