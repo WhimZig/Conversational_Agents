@@ -209,7 +209,7 @@ class KnowledgeGraphArt:
         :returns The corresponding opposite of the given string"""
         return self.objects_list[to_find]
 
-    def find_neighboring_nodes(self, target_node: URIRef) -> list[URIRef]:
+    def find_neighboring_nodes(self, target_node: URIRef) -> list:
         """Method to return all the immediate neighbors of a given target node. Does not return the relationship, just
         returns that they are somehow related.
 
