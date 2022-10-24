@@ -52,7 +52,7 @@ val Showcase : State = state(Parent) {
 
         //Connection to GUI
         send(SetPicSolo(art.imagePath))
-
+        println("send pic to gui")
         var artist=""
         var medium=""
         var timePeriod=""
@@ -64,9 +64,16 @@ val Showcase : State = state(Parent) {
 
         furhat.say("This is${artist} ${art.title}${medium}${timePeriod}")
 
-        furhat.say("What are your thoughts on the art?")
+        furhat.ask("What are your thoughts on the art?")
+        println("finished saying")
+
     }
-    onResponse {
+    onResponse<Yes> {
+        furhat.say("It's nice that you like it")
+        goto(ShowcaseMore)
+
+    }
+    onResponse{
         println(it.text)
 
 
@@ -77,7 +84,7 @@ val Showcase : State = state(Parent) {
 
 val ShowcaseMore : State = state(Parent) {
     onEntry {
-        furhat.say("Would you like to explore more artworks?")
+        furhat.ask("Would you like to explore more artworks?")
     }
     onResponse<Yes> {
         when(sentiment) {
@@ -92,7 +99,7 @@ val ShowcaseMore : State = state(Parent) {
 
 val ShowcaseSimilar : State = state(Parent) {
     onEntry {
-        furhat.say("Would you like to see  artworks similar to the previous?")
+        furhat.ask("Would you like to see  artworks similar to the previous?")
     }
     onResponse<Yes> {
         goto(Showcase)

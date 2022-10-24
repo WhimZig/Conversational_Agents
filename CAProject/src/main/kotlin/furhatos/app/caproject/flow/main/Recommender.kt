@@ -42,13 +42,27 @@ object Recommender {
 
         //Connection to gaze part / stopping gaze evaluation
         val r = khttp.get("http://localhost:8000/gaze/stop")
-        val attention = khttp.get("http://localhost:8000/gaze/getAttention").jsonObject.get("attention") as Float
-        val sentiment = khttp.post(
-            "http://localhost:8000/nlu/sentiment",
-            json = mapOf("text" to response)
-        ).jsonObject.get("sentiment") as Float
+        var attention: Number
+        var sentimentVal: Number
+        try {
+            attention = khttp.get("http://localhost:8000/gaze/getAttention").jsonObject.get("attention") as Double
+        } catch (e: Exception) {
+            attention = khttp.get("http://localhost:8000/gaze/getAttention").jsonObject.get("attention") as Int
+        }
+        try {
+            sentimentVal = khttp.post(
+                "http://localhost:8000/nlu/sentiment",
+                json = mapOf("text" to response)
+            ).jsonObject.get("sentiment") as Double
+        } catch (e: Exception) {
+            sentimentVal = khttp.post(
+                "http://localhost:8000/nlu/sentiment",
+                json = mapOf("text" to response)
+            ).jsonObject.get("sentiment") as Int
+        }
+
         // if there is a problem here put the attribute calling somewhere after the function
-        val combined_score = 0.5 * sentiment + 0.5 * attention * sentiment
+        val combined_score = 0.5 * sentimentVal.toFloat() + 0.5 * attention.toFloat() * sentimentVal.toFloat()
 
         khttp.post(
             "http://localhost:8000/mem/painting_score",
