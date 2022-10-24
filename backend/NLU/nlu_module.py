@@ -15,11 +15,11 @@ class NLU:
         nltk.download('vader_lexicon')
         self.sid = SentimentIntensityAnalyzer()
 
-        # Person's name extraction
-        nltk.download('punkt')
-        nltk.download('averaged_perceptron_tagger')
-        nltk.download('maxent_ne_chunker')
-        nltk.download('words')
+        # # Person's name extraction
+        # nltk.download('punkt')
+        # nltk.download('averaged_perceptron_tagger')
+        # nltk.download('maxent_ne_chunker')
+        # nltk.download('words')
 
         # General purpose keyword extraction
         self.kw_model = KeyBERT(model='all-mpnet-base-v2')
@@ -69,18 +69,18 @@ class NLU:
         score = self.sid.polarity_scores(text)['compound']
         return score
 
-    # String with persons name or None
-    def extract_person_name(self, text: str):
-        nltk_results = ne_chunk(pos_tag(word_tokenize(text)))
-        for nltk_result in nltk_results:
-            if type(nltk_result) == Tree:
-                name = ''
-                for nltk_result_leaf in nltk_result.leaves():
-                    name += nltk_result_leaf[0] + ' '
-                if(nltk_result.label() == 'PERSON'):
-                    return name[:-1]
+    # # String with persons name or None
+    # def extract_person_name(self, text: str):
+    #     nltk_results = ne_chunk(pos_tag(word_tokenize(text)))
+    #     for nltk_result in nltk_results:
+    #         if type(nltk_result) == Tree:
+    #             name = ''
+    #             for nltk_result_leaf in nltk_result.leaves():
+    #                 name += nltk_result_leaf[0] + ' '
+    #             if(nltk_result.label() == 'PERSON'):
+    #                 return name[:-1]
 
-        return None
+    #     return None
 
     # Top keyword_no predicted keywords using KeyBert
     def extract_keywords(self, text: str, keyword_no=1):

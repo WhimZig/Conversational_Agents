@@ -66,13 +66,13 @@ nlu.load_painting_features_from_file(
     "Memory_system/listing_of_elements/human_to_machine.txt")
 
 
-@app.post("/nlu/name")
-async def extractName(user_response: UserResponse):
-    name = nlu.extract_person_name(user_response.text)
-    if name is None:
-        return {"name_found": False, "name": ""}
+# @app.post("/nlu/name")
+# async def extractName(user_response: UserResponse):
+#     name = nlu.extract_person_name(user_response.text)
+#     if name is None:
+#         return {"name_found": False, "name": ""}
 
-    return {"name_found": True, "name": name}
+#     return {"name_found": True, "name": name}
 
 
 @app.post("/nlu/purpose")
