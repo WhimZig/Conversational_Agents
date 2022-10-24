@@ -52,7 +52,7 @@ FurhatGUI()
   .catch(console.error)
 
 //Button to test everything
-let debug=true
+let debug=false
 if(debug){
 document.getElementById("debug-folder").innerHTML='<button type="button" id="pinging"> Ping! </button><button type="button" id="3pics"> All the pics! </button><button type="button" id="solopic"> Solo pic! </button>'
 document.getElementById("pinging").addEventListener("click", () => { furhat.send({event_name:"LoggingPing"}) })
