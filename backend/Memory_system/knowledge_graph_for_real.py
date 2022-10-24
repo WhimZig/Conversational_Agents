@@ -33,7 +33,7 @@ class KnowledgeGraphArt:
                 print('Key error was reached')
 
         d = {}
-        with open("listing_of_elements/machine_object_both.txt", encoding='utf8') as f:
+        with open("Memory_system/listing_of_elements/machine_object_both.txt", encoding='utf8') as f:
             for line in f:
                 (key, val) = line.split(',', 1)
                 val = val[:-1]
@@ -43,11 +43,11 @@ class KnowledgeGraphArt:
         self.objects_list = d
 
         # TODO: Painting list might not be relevant. It might be worthwhile to remove this from memory, as it's not used
-        paintings = open('listing_of_elements/paintings_in_graph.txt', 'r')
+        paintings = open('Memory_system/listing_of_elements/paintings_in_graph.txt', 'r')
         paintings_str = paintings.read()
         self.painting_list = paintings_str.split('\n')
 
-        machine_name_list = open('listing_of_elements/machine_names_objects.txt', 'r')
+        machine_name_list = open('Memory_system/listing_of_elements/machine_names_objects.txt', 'r')
         machine_name_list = machine_name_list.read().split('\n')
 
         if target_user is not None and exists('UserVertexWeights/' + target_user + '.csv'):
