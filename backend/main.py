@@ -141,7 +141,7 @@ async def recommendPainting():
     filename_painting = graph_art.find_string_name_with_machine_name(machine_painting_name, False)
     piece_name, artist, medium, period = graph_art.find_artist_medium_period_for_painting(machine_painting_name)
     return {"filename": filename_painting, 'piece_name': piece_name, 'artist': artist,
-            'medium': medium, 'period': period}
+            'medium': medium, 'period': period, 'machine_name': machine_painting_name}
 
 
 @app.post("/mem/update_purpose")
