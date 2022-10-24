@@ -55,7 +55,7 @@ class NLU:
         self.feature_mapping_dict = {}
         self.feature_candidates = []
 
-        with open(filename) as f:
+        with open(filename, encoding="utf8") as f:
             for line in f:
                 (key, val) = line.split(',')
                 self.feature_mapping_dict[val] = key
