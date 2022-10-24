@@ -140,7 +140,7 @@ class KnowledgeGraphArt:
         """Increases the explored count of the given vertex
 
         :param vertex_name: Increases the explored count of the vertex"""
-        self.explored.loc[vertex_name] += 1
+        self.explored.loc[str(vertex_name)] += 1
 
     def store_weights(self, new_username: str = None, memory_reduction: float = 0.5):
         """Method to store the currently associated weights with the knowledge graph. Will store them
@@ -229,18 +229,20 @@ class KnowledgeGraphArt:
 
     def update_neighboring_to_painting(self, machine_name_painting: str, sentiment: float) -> None:
         """Given a painting and some sentiment about the painting, the recommender system will update the values of
-        all of the neighboring terms. This will additionally mark the given painting as being visited already
+        all the neighboring terms. This will additionally mark the given painting as being visited already
 
         :param machine_name_painting: Machine name of the painting that was visited. It is a string to make it easier
         to merge with other components, it will be turned into a URIRef value immediately
         :param sentiment: Score given to the painting. Obtained through a magical multimodal method"""
+
         painting_URI = URIRef(machine_name_painting)
 
         neighbors = self.find_neighboring_nodes(painting_URI)
 
+        # I can just remove all the neighbors that aren't objects, and that's easy...
+        neighbors = list(set(neighbors) & set(self.objects_list))
+
         for elem in neighbors:
-            # TODO: Bug test the element I'm receiving and that I'm giving is consistent
-            #   AKA, both are URI or both are string
             self.modify_weight_of_vertex(elem, sentiment)
 
         self.mark_vertex_as_explored(machine_name_painting)
@@ -269,7 +271,6 @@ class KnowledgeGraphArt:
         period = period.replace('-', ' ').replace('_', ' ')
 
         return piece_name, artist, medium, period
-
 
     def add_topic_to_graph(self, topic_to_add: str, cut_off: float = 1.):
         """To keep into account context, the system will have a method to read in a topic and save it withing the
