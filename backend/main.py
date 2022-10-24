@@ -81,11 +81,11 @@ async def extractName(user_response: UserResponse):
     PURPOSE = purposes[0]
     return {"purpose_list": purposes}
 
-
 @app.post("/nlu/feature")
 async def extractName(user_response: UserResponse):
     features = nlu.extract_feature_using_candidates(user_response.text)
-    return {"feature_list": features}
+    print(features)
+    return {"feature1": features[0], "feature2":features[1], "feature3":features[2]}
 
 
 @app.post("/nlu/sentiment")
@@ -103,7 +103,7 @@ async def extractName(user_response: UserResponse):
 @app.post("/nlu/keywords")
 async def extractName(user_response: UserResponse):
     keywords = nlu.extract_keywords(user_response.text)
-    return {"keywords": keywords}
+    return {"keyword": keywords[0]}
 
 g = None
 try:
