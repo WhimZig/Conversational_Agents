@@ -186,7 +186,7 @@ function setPicSelection(input) {
   var pic_names = input.split(',');
   var newHtml = "";
   for (var i = 0; i < pic_names.length; i++) {
-    newHtml += '<img class="art" id="pic-' + i + '" src="pics/' + pic_names[i] + '"/>';
+    newHtml += '<img class="art" id="pic-' + i + '" src="pics/imagesf2/' + pic_names[i] + '"/>';
   }
   folder.innerHTML = newHtml;
 
@@ -208,7 +208,7 @@ function setPicSelection(input) {
 function setSoloPic(input) {
   console.log('setting solo pic');
   var folder = document.getElementById("folder");
-  folder.innerHTML = '<img class="art solo" src="pics/' + input + '"/>';
+  folder.innerHTML = '<img class="art solo" src="pics/imagesf2/' + input + '"/>';
 }
 
 /***/ }),
