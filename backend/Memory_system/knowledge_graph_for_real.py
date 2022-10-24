@@ -83,7 +83,7 @@ class KnowledgeGraphArt:
             return result
         else:
             for i in range(len(result)):
-                result[i] = self.find_string_name_with_machine_name(result[i])
+                result[i] = self.find_string_name_with_machine_name(result[i], False)
 
             return result
 
@@ -166,7 +166,7 @@ class KnowledgeGraphArt:
         reduced_weights = self.vert_weights * memory_reduction
         reduced_weights.to_csv('UserVertexWeights/' + username + '.csv')
 
-    def find_string_name_with_machine_name(self, machine_name: URIRef, through_graph: False) -> str:
+    def find_string_name_with_machine_name(self, machine_name: URIRef, through_graph = False) -> str:
         """Given the machine name in URIRef format of an object, find what the corresponding string name is. In case the
         piece is an art piece, then this method will return the title of the art piece
 
@@ -184,14 +184,15 @@ class KnowledgeGraphArt:
         if through_graph:
             art_type = URIRef('https://www.gennarovessio.com/artgraph-schema#Artwork')
 
-            if (machine_name, RDF.type, art_type) in self.g:
+            if (URIRef(machine_name), RDF.type, art_type) in self.g:
                 target_uri = URIRef(artgraph_prefix + 'title')
             else:
                 target_uri = URIRef(artgraph_prefix + 'name')
 
             # Just to deal with errors of it not existing in the graph
-            res = 'Not found'
-            for s, p, o in self.g.triples((machine_name, target_uri, None)):
+            # A blank name is better, because yes
+            res = ''
+            for s, p, o in self.g.triples((URIRef(machine_name), target_uri, None)):
                 # I'm going to assume that there is only one name. In
                 res = o
 

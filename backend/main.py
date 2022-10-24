@@ -1,9 +1,8 @@
-import rdflib
-
 from NLU.nlu_module import NLU
 import Gaze.Gaze as Gaze
 from typing import Union
 from Memory_system.knowledge_graph_for_real import KnowledgeGraphArt
+import rdflib
 
 from fastapi import FastAPI
 from pydantic import BaseModel
