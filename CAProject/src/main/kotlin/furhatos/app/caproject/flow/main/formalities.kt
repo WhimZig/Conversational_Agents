@@ -35,7 +35,7 @@ val Greeting : State = state(Parent) {
 
 val Ending : State = state(Parent) {
     onEntry {
-        furhat.say("Are you satisfied with my recommendation?")
+        furhat.ask("Are you satisfied with my recommendation?")
     }
     onResponse<Yes> {
         furhat.say("Glad to hear that! Hope to see you again soon. Goodbye.")
