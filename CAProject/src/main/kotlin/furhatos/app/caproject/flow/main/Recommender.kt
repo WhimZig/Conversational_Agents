@@ -1,13 +1,14 @@
 package furhatos.app.caproject.flow.main
 
+import java.util.Arrays
+
 object Recommender {
     fun processPurpose(text: String) {
         println("processing purpose!")
         //val purpose_list = khttp.post("http://localhost:8000/nlu/purpose", data = mapOf("text" to text))
 
         // It's a list of one element at this point, can adjust it for more
-        val purpose_list = khttp.post("http://localhost:8000/nlu/keyword", data = mapOf("text" to text)).purposes
-
+        val purpose_list = khttp.post("http://localhost:8000/nlu/keyword", data = mapOf("text" to text))
 
         println("processed purpose!")
     }
@@ -15,7 +16,7 @@ object Recommender {
     fun processPreferences(text: String) {
         println("processing preferences!")
 
-        val feature_list = khttp.post("http://localhost:8000/nlu/feature", data = mapOf("text" to text)).features
+        val feature_list = khttp.post("http://localhost:8000/nlu/feature", data = mapOf("text" to text)).jsonObject.get("features") as List<*>
 
         for (feature in feature_list) {
             khttp.post("http://localhost:8000/mem/topic", data = mapOf("text" to feature))
@@ -30,8 +31,8 @@ object Recommender {
 
         //Connection to gaze part / stopping gaze evaluation
         val r = khttp.get("http://localhost:8000/gaze/stop")
-        val attention = khttp.get("http://localhost:8000/gaze/getAttention").attention
-        val sentiment = khttp.post("http://localhost:8000/nlu/sentiment", data = mapOf("text" to response)).sentiment
+        val attention = khttp.get("http://localhost:8000/gaze/getAttention").jsonObject.get("attention") as Float
+        val sentiment = khttp.post("http://localhost:8000/nlu/sentiment", data = mapOf("text" to response)).jsonObject.get("sentiment") as Float
         // if there is a problem here put the attribute calling somewhere after the function
         val combined_score = 0.5 * sentiment + 0.5 * attention * sentiment
 
@@ -52,12 +53,12 @@ object Recommender {
         //Connection to gaze part / starting gaze evaluation
         val r = khttp.get("http://localhost:8000/gaze/start")
 
-        val art = khttp.get("http://localhost:8000/mem/painting_recommend")
-        var art1 = Art(art.filename,art.filename)
-        art1.artist=art.artist
-        art1.title=art.piece_name
-        art1.medium=art.medium
-        art1.timePeriod=art.period
+        val art = khttp.get("http://localhost:8000/mem/painting_recommend").jsonObject
+        var art1 = Art(art.get("filename") as String,art.get("filename") as String)
+        art1.artist=art.get("artist") as String
+        art1.title=art.get("piece_name") as String
+        art1.medium=art.get("medium") as String
+        art1.timePeriod=art.get("period") as String
         return art1
     }
 }   
