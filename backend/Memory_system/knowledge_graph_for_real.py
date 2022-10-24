@@ -104,9 +104,9 @@ class KnowledgeGraphArt:
 
         neighbors = self.find_neighboring_nodes(URIRef(vertex_to_modify))
 
-        painting_neighbors = [x for x in neighbors if x in self.painting_list]
-        for elem in painting_neighbors:
-            self.vert_weights.loc[elem] += change_value
+        painting_neighbors = list(set(neighbors) & set(self.painting_list))
+
+        self.vert_weights[self.vert_weights.index.isin(painting_neighbors)] += change_value
 
     def find_n_highest_ranked_unexplored_paintings(self, count: int = 1) -> list:
         """Finds what are the paintings with the highest rank. Because paintings are rarely going to be directly
@@ -219,10 +219,10 @@ class KnowledgeGraphArt:
         :returns A list with all the URIRef that neighbor the given target node"""
         result_list = []
         for s, p, o in self.g.triples((target_node, None, None)):
-            result_list.append(o)
+            result_list.append(str(o))
 
         for s, p, o in self.g.triples((None, None, target_node)):
-            result_list.append(s)
+            result_list.append(str(s))
 
         return result_list
 
