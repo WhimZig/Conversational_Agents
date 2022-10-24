@@ -237,15 +237,22 @@ class KnowledgeGraphArt:
 
         painting_URI = URIRef(machine_name_painting)
 
+        self.mark_vertex_as_explored(machine_name_painting)
+
         neighbors = self.find_neighboring_nodes(painting_URI)
 
         # I can just remove all the neighbors that aren't objects, and that's easy...
-        neighbors = list(set(neighbors) & set(self.objects_list))
+        neighbors = list(set(neighbors) & set(self.objects_list.keys()))
+
+        # Removing the name from the painting, because yes
+        for elem in neighbors:
+            if elem.endswith('.jpg'):
+                neighbors.remove(elem)
+
+        print(neighbors)
 
         for elem in neighbors:
             self.modify_weight_of_vertex(elem, sentiment)
-
-        self.mark_vertex_as_explored(machine_name_painting)
 
     def find_artist_medium_period_for_painting(self, machine_painting_name: URIRef) -> tuple:
         """Get all the extra info for a painting, based on the machine name. Means we will look for the relevant
