@@ -8,14 +8,13 @@ from rdflib.namespace import RDF, RDFS, OWL, FOAF
 import rdflib
 
 if __name__ == '__main__':
-    d = {}
+    objects_list = {}
     with open("listing_of_elements/machine_object_both.txt", encoding='utf8') as f:
         for line in f:
             (key, val) = line.split(',', 1)
             val = val[:-1]
-            d[key] = val
-            d[val] = key
-    print(d)
+            objects_list[key] = val
+            objects_list[val] = key
 
 artgraph_prefix = 'https://www.gennarovessio.com/artgraph-schema#'
 artgraph_res_prefix = 'https://www.gennarovessio.com/artgraph-resources#'
@@ -43,7 +42,7 @@ for s, p, o in g:
 
 result_list = list(result_list)
 
-with open('listing_of_elements/human_to_machine.txt', 'w', encoding='utf-8') as f:
+with open('human_object_both.txt', 'w', encoding='utf-8') as f:
     for line in result_list:
         key, value = line[0], line[1]
         #print(key + ',' + value)
