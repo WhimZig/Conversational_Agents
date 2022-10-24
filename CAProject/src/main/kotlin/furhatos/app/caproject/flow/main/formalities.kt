@@ -16,7 +16,7 @@ val Greeting : State = state(Parent) {
     }
 
     onResponse<PersonName> {
-        NAME = it.intent.simpleName
+        NAME = it.intent.toString()
         println("customer name is $NAME")
         goto(Purpose)
     }
