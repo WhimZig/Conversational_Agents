@@ -23,6 +23,7 @@ class KnowledgeGraphArt:
             is used at the start.
         """
         # First thing, if there's target user we use their information, if there is none, then we use the default graph
+        print('Smart was initialized')
         if g is None:
             try:
                 # There's an error with the format of the original file. Doing a generic AF exception is the only fix I

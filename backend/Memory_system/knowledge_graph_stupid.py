@@ -24,6 +24,7 @@ class KnowledgeGraphDumb:
         :param target_user: Used to identify the current user. In case no user is given, a default graph with 0 weights
             is used at the start.
         """
+        print('Dumb was initialized')
         # First thing, if there's target user we use their information, if there is none, then we use the default graph
         if g is None:
             try:
@@ -123,11 +124,12 @@ class KnowledgeGraphDumb:
         :param count: Number of topics to explore
         :return list containing the string names of the nth ranked topics"""
 
+        # TODO: Bug test the dumb methods to make sure it all works out
         temp = self.vert_weights[~self.vert_weights.index.isin(self.painting_list)]
-        temp = temp[self.explored < 1]
+        temp = temp[self.explored < 1].index
 
         result = [None] * count
-        for i in range(number):
+        for i in range(count):
             result[i] = random.choice(temp)
 
         return result

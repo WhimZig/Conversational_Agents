@@ -35,6 +35,7 @@ val Greeting : State = state(Parent) {
 
 val Ending : State = state(Parent) {
     onEntry {
+        khttp.get("http://localhost:8000/mem/wipe")
         furhat.ask("Are you satisfied with my recommendation?")
     }
     onResponse<Yes> {

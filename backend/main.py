@@ -2,6 +2,7 @@ from NLU.nlu_module import NLU
 import Gaze.Gaze as Gaze
 from typing import Union
 from Memory_system.knowledge_graph_for_real import KnowledgeGraphArt
+from Memory_system.knowledge_graph_stupid import KnowledgeGraphDumb
 import rdflib
 
 from fastapi import FastAPI
@@ -114,6 +115,19 @@ except Exception:
     print('This is an expected print, which is ugly but woo')
 
 graph_art = KnowledgeGraphArt(g=g)
+# graph_art = KnowledgeGraphDumb(g=g)
+
+@app.get("/mem/set_smart")
+async def set_smart():
+    """Method assumes that the given text is the string version of the URI Machine name"""
+    graph_art = KnowledgeGraphArt(g=g)
+    return {"message": "Graph is smart"}
+
+@app.get("/mem/set_dumb")
+async def set_dumb():
+    """Method assumes that the given text is the string version of the URI Machine name"""
+    graph_art = KnowledgeGraphDumb(g=g)
+    return {"message": "Graph is dumb"}
 
 
 class KnowledgeGraphResponse(BaseModel):
@@ -147,3 +161,9 @@ async def recommendPainting():
 async def addTopicToGraph(response: UserResponse):
     graph_art.add_topic_to_graph(response.text)
     return {"message": 'Topic was added'}
+
+
+@app.get("/mem/wipe")
+async def wipeMemory():
+    graph_art.reset_memory()
+    return {"message": 'Memory was removed'}
