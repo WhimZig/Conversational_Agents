@@ -6,7 +6,7 @@ import furhatos.nlu.common.No
 import furhatos.nlu.common.PersonName
 import furhatos.nlu.common.Yes
 
-var NAME  = "John"
+var NAME  = ""
 
 val Greeting : State = state(Parent) {
     onEntry {
@@ -21,21 +21,15 @@ val Greeting : State = state(Parent) {
         goto(Purpose)
     }
 
-    onResponse<Yes> {
-        furhat.say("Sounds good!")
-        goto(Preference)
-    }
-
-    onResponse<No> {
-        furhat.say("Ok goodbye!.")
-        goto(Idle)
+    onResponse {
+        goto(Purpose)
     }
 
 }
 
 val Ending : State = state(Parent) {
     onEntry {
-        khttp.get("http://localhost:8000/mem/wipe")
+        Recommender.wipe()
         furhat.ask("Are you satisfied with my recommendation?")
     }
     onResponse<Yes> {
