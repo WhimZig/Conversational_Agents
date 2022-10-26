@@ -4,7 +4,14 @@ import org.json.JSONObject
 import java.util.Arrays
 
 object Recommender {
+
+    val mock = false
     fun processPurpose(text: String) {
+        if (mock) {
+            println("Mocking processing Purpose")
+            return
+        }
+
         println("processing purpose!")
         //val purpose_list = khttp.post("http://localhost:8000/nlu/purpose", data = mapOf("text" to text))
 
@@ -15,6 +22,11 @@ object Recommender {
     }
 
     fun processPreferences(text: String) {
+        if (mock) {
+            println("Mocking processing Preferences")
+            return
+        }
+
         println("processing preferences!")
         val feature_list =
             khttp.post("http://localhost:8000/nlu/feature", json = JSONObject(mapOf("text" to text))).jsonObject
@@ -38,7 +50,13 @@ object Recommender {
     }
 
     fun processUserResponse(artId: String, response: String): Sentiment {
+        if (mock) {
+            println("Mocking processing User Response")
+            return Sentiment.POSITIVE
+        }
+
         println("processing sentiment on art: $artId , response: $response")
+
 
         //Connection to gaze part / stopping gaze evaluation
         val r = khttp.get("http://localhost:8000/gaze/stop")
@@ -77,6 +95,13 @@ object Recommender {
 
     fun getArt(): Art {
         println("getting art!")
+        if (mock) {
+            println("Mock getting Art")
+            // TODO put a real image into the mock
+            return Art(
+                    "/fake/image", "1", "picasso", "tree", "oil", "1900"
+            )
+        }
         // TODO: connect this to Python preference engine
         //Connection to gaze part / starting gaze evaluation
         val r = khttp.get("http://localhost:8000/gaze/start")
@@ -89,5 +114,13 @@ object Recommender {
         art1.medium = art.get("medium") as String
         art1.timePeriod = art.get("period") as String
         return art1
+    }
+
+    fun wipe() {
+        println("Wiping user memory graph")
+        if (mock) {
+            return
+        }
+        khttp.get("http://localhost:8000/mem/wipe")
     }
 }   

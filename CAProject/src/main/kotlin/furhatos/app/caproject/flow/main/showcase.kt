@@ -16,12 +16,12 @@ var sentiment = Sentiment.POSITIVE
 
 val Purpose : State = state(Parent) {
     onEntry {
-        furhat.ask("Hi ${NAME}, why are you looking for art?")
+        furhat.ask("Nice to meet you ${NAME}! Why are you looking for art?")
     }
 
     onResponse {
         println(it.text)
-        furhat.say("Awesome, let me find some cool art for you!")
+        furhat.say("Nice! I'll keep that in mind for you today!")
         Recommender.processPurpose(it.text)
         goto(Preference)
     }
