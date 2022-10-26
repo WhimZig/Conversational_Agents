@@ -61,7 +61,9 @@ class KnowledgeGraphDumb:
         # I'll just do a count of explore for now, as that is easier to handle
         self.explored = pd.Series(0, index=machine_name_list)
 
-        self.neighbor_paintings = []
+        # Nearby paintings stores paintings related to the previous topic given
+        # Done to use the recent information, but still not have any information
+        self.nearby_paintings = []
 
     def find_n_highest_ranked_unexplored_vertexes(self, number: int = 3, machine_name=True) -> list:
         """Method to find the n highest ranked unexplored vertexes. These can be art pieces, or they can be topics of
@@ -74,7 +76,8 @@ class KnowledgeGraphDumb:
         :returns
             Ordered list of strings, with the highest ranking vertexes
         """
-        temp = self.vert_weights[self.explored < 1]
+        # TODO: Bugtest this method
+        temp = self.explored[self.explored < 1].index
 
         result = [None] * number
 
@@ -91,7 +94,7 @@ class KnowledgeGraphDumb:
 
     def modify_weight_of_vertex(self, vertex_to_modify: str, change_value: float = 0.2) -> None:
         """This method will store the neighboring paintings in memory. Done so that we can remember the genre used
-        somehow, but it still ignores the other information.
+        somehow, but still ignore the other information.
 
         :param vertex_to_modify: the vertex that will be modified. Assumes that the string given is the machine name
         :param change_value: Placeholder value used
@@ -101,7 +104,7 @@ class KnowledgeGraphDumb:
         neighbors = self.find_neighboring_nodes(URIRef(vertex_to_modify))
 
         painting_neighbors = [x for x in neighbors if x in self.painting_list]
-        self.painting_list = painting_neighbors
+        self.nearby_paintings = painting_neighbors
 
     def find_n_highest_ranked_unexplored_paintings(self, count: int = 1) -> list:
         """Returns the amount of paintings from the painting list. It makes no guarantees that it will display a
@@ -112,7 +115,7 @@ class KnowledgeGraphDumb:
 
         result = [None] * count
         for i in range(count):
-            result[i] = random.choice(self.painting_list)
+            result[i] = random.choice(self.nearby_paintings)
 
         return result
 
@@ -125,7 +128,7 @@ class KnowledgeGraphDumb:
         :return list containing the string names of the nth ranked topics"""
 
         # TODO: Bug test the dumb methods to make sure it all works out
-        temp = self.vert_weights[~self.vert_weights.index.isin(self.painting_list)]
+        temp = self.explored[~self.explored.index.isin(self.painting_list)]
         temp = temp[self.explored < 1].index
 
         result = [None] * count
@@ -138,7 +141,7 @@ class KnowledgeGraphDumb:
         """Increases the explored count of the given vertex
 
         :param vertex_name: Increases the explored count of the vertex"""
-        self.explored.loc[vertex_name] += 1
+        self.explored.loc[str(vertex_name)] += 1
 
     def store_weights(self, new_username: str = None, memory_reduction: float = 0.5):
         """Method does nothing, it exists for compatability and to make everything consistent
@@ -165,14 +168,14 @@ class KnowledgeGraphDumb:
         if through_graph:
             art_type = URIRef('https://www.gennarovessio.com/artgraph-schema#Artwork')
 
-            if (machine_name, RDF.type, art_type) in self.g:
+            if (URIRef(machine_name), RDF.type, art_type) in self.g:
                 target_uri = URIRef(artgraph_prefix + 'title')
             else:
                 target_uri = URIRef(artgraph_prefix + 'name')
 
             # Just to deal with errors of it not existing in the graph
-            res = 'Not found'
-            for s, p, o in self.g.triples((machine_name, target_uri, None)):
+            res = ''
+            for s, p, o in self.g.triples((URIRef(machine_name), target_uri, None)):
                 # I'm going to assume that there is only one name. In
                 res = o
 
@@ -199,10 +202,10 @@ class KnowledgeGraphDumb:
         :returns A list with all the URIRef that neighbor the given target node"""
         result_list = []
         for s, p, o in self.g.triples((target_node, None, None)):
-            result_list.append(o)
+            result_list.append(str(o))
 
         for s, p, o in self.g.triples((None, None, target_node)):
-            result_list.append(s)
+            result_list.append(str(s))
 
         return result_list
 
@@ -221,15 +224,15 @@ class KnowledgeGraphDumb:
 
         # First is finding the artist
         artist = ''
-        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'createdBy'), None)):
+        for s, p, o in self.g.triples((URIRef(machine_painting_name), URIRef(artgraph_prefix + 'createdBy'), None)):
             artist = self.find_string_name_with_machine_name(o, False)
 
         medium = ''
-        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'madeOf'), None)):
+        for s, p, o in self.g.triples((URIRef(machine_painting_name), URIRef(artgraph_prefix + 'madeOf'), None)):
             medium = self.find_string_name_with_machine_name(o, False)
 
         period = ''
-        for s, p, o in self.g.triples((machine_painting_name, URIRef(artgraph_prefix + 'hasPeriod'), None)):
+        for s, p, o in self.g.triples((URIRef(machine_painting_name), URIRef(artgraph_prefix + 'hasPeriod'), None)):
             period = self.find_string_name_with_machine_name(o, False)
 
         piece_name = self.find_string_name_with_machine_name(machine_painting_name, True)
@@ -271,5 +274,7 @@ class KnowledgeGraphDumb:
         self.g.serialize(destination='saved_graph.ttl')
 
     def reset_memory(self):
-        """Method to reset the internal memory. Done so that future runnings of the app can manage"""
-        self.explored = pd.Series(0., index=self.explored.index)
+        """Method to reset the internal memory. Done so that future runnings of the app can be faster
+
+        Only resets the explored elements"""
+        self.explored = pd.Series(0, index=self.explored.index)

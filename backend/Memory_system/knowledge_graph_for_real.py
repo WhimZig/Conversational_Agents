@@ -201,7 +201,6 @@ class KnowledgeGraphArt:
         else:
             return self.objects_list[str(machine_name)]
 
-
     def machine_to_name_finder(self, to_find: str) -> str:
         """Given either a machine name or a proper name, this method finds its opposite. Meaning, for a machine name
         it finds the human name, and for a human name it finds the machine name.
@@ -311,6 +310,8 @@ class KnowledgeGraphArt:
         self.g.serialize(destination='saved_graph.ttl')
 
     def reset_memory(self):
-        """Method to reset the internal memory. Done so that future runnings of the app can manage"""
-        self.explored = pd.Series(0., index=self.explored.index)
+        """Method to reset the internal memory. Done so that future runnings of the app can manage
+
+        Forgets the explored paintings, as well as the vertex weights"""
+        self.explored = pd.Series(0, index=self.explored.index)
         self.vert_weights = pd.Series(0., index=self.vert_weights.index)
