@@ -112,10 +112,15 @@ class KnowledgeGraphDumb:
 
         :param count: Number of paintings to explore
         :return list containing the string names of the nth ranked paintings"""
-
+        # This method is giving bugs, and I'm not sure why!
         result = [None] * count
-        for i in range(count):
-            result[i] = random.choice(self.nearby_paintings)
+
+        if len(self.nearby_paintings) == 0:
+            for i in range(count):
+                result[i] = random.choice(self.painting_list)
+        else:
+            for i in range(count):
+                result[i] = random.choice(self.nearby_paintings)
 
         return result
 
