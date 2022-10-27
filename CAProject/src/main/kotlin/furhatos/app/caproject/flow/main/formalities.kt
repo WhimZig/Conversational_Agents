@@ -10,6 +10,7 @@ var NAME  = ""
 
 val Greeting : State = state(Parent) {
     onEntry {
+        Recommender.wipe()
         furhat.say("Hello my name is Arthur the art recommender robot")
         furhat.ask("Whats your name?")
 
